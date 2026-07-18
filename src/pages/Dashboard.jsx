@@ -48,7 +48,7 @@ export default function Dashboard() {
         </div>
 
         <div className="mt-8 space-y-3">
-          {loading && <p className="text-sm text-ink/50">Loading\u2026</p>}
+          {loading && <p className="text-sm text-ink/50">Loading...</p>}
 
           {!loading && programmes.length === 0 && (
             <div className="rounded-card border border-dashed border-line bg-white/50 p-10 text-center">

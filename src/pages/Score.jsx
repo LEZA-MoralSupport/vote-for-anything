@@ -41,7 +41,7 @@ export default function Score() {
   if (!unlocked) {
     return (
       <PasswordModal
-        title="เข้าถึงผู้ดูแล"
+        title="สิทธ์เข้าถึง"
         message="กรอกรหัสผ่านผู้ดูแลเพื่อดูผลคะแนน"
         confirmLabel="ดูผลคะแนน"
         onCancel={() => navigate(-1)}
