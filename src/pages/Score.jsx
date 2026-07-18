@@ -41,8 +41,8 @@ export default function Score() {
   if (!unlocked) {
     return (
       <PasswordModal
-        title="สิทธ์เข้าถึง"
-        message="กรอกรหัสผ่านผู้ดูแลเพื่อดูผลคะแนน"
+        title="กรอกรหัสผ่านเพื่อดูผลโหวต"
+        message="กรุณากรอกรหัสผ่านผู้ดูแล เพื่อดูผลโหวตของฟอร์มนี้"
         confirmLabel="ดูผลคะแนน"
         onCancel={() => navigate(-1)}
         onConfirm={(value, setError) => {

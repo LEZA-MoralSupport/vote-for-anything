@@ -107,7 +107,7 @@ export default function Vote() {
         </div>
 
         <div className="mt-6 text-center">
-          <p className="font-mono text-xs uppercase tracking-wider text-plum-500">โหวดเลย!!</p>
+          <p className="font-mono text-xs uppercase tracking-wider text-plum-500">โหวตเลย!!</p>
           <h1 className="mt-1 font-display text-3xl font-semibold text-ink">{programme.name}</h1>
         </div>
 
