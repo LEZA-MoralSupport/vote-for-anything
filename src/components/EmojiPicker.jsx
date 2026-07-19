@@ -95,7 +95,7 @@ export default function EmojiPicker({ value, onChange }) {
         <button
           type="button"
           onClick={() => onChange('')}
-          className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-ink/70 text-[10px] text-white opacity-0 transition-opacity group-hover:opacity-100"
+          className="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-ink/70 text-[9px] text-white opacity-0 transition-opacity group-hover:opacity-100"
           aria-label="ลบสัญลักษณ์"
         >
           ✕

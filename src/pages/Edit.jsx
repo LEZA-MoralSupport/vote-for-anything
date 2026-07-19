@@ -260,7 +260,7 @@ export default function Edit() {
                   </button>
                 </div>
                 <div className="flex-1 space-y-4">
-                  <div className="flex gap-3">
+                  <div className="flex gap-3" >
                     <EmojiPicker
                       value={c.icon}
                       onChange={(v) => updateChoiceField(c.id, 'icon', v)}
@@ -269,7 +269,7 @@ export default function Edit() {
                       value={c.name}
                       onChange={(e) => updateChoiceField(c.id, 'name', e.target.value)}
                       placeholder="ชื่อตัวเลือก"
-                      className="flex-1 rounded-lg border border-line px-3 py-2 text-[15px] outline-none focus:border-plum-500"
+                      className="w-full flex-1 rounded-lg border border-line px-3 py-2 text-[15px] outline-none focus:border-plum-500"
                     />
                   </div>
 
@@ -292,7 +292,7 @@ export default function Edit() {
                       <p className="mb-1.5 text-sm font-medium text-ink/50">รูปภาพ (ไม่บังคับ)</p>
                       <div className="flex items-center gap-2">
                         {(c._preview || c.imageUrl) ? (
-                          <div className="group relative h-64 w-64 overflow-visible rounded-lg">
+                          <div className="group relative h-64 w-64 overflow-hidden rounded-lg">
                             <img
                               src={c._preview || c.imageUrl}
                               alt=""
@@ -301,7 +301,7 @@ export default function Edit() {
                             <button
                               type="button"
                               onClick={() => removeImage(c.id)}
-                              className="absolute -right-1.5 -top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-white bg-ink/80 text-[10px] text-white shadow-sm opacity-0 transition-opacity group-hover:opacity-100"
+                              className="absolute right-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-white bg-ink/80 text-[10px] text-white shadow-sm opacity-0 transition-opacity group-hover:opacity-100"
                             >
                               ✕
                             </button>
