@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   ADMIN_PASSWORD,
@@ -54,9 +54,6 @@ export default function Edit() {
   const [error, setError] = useState('')
   const [shuffleOnLoad, setShuffleOnLoad] = useState(false)
   const [showSavePassword, setShowSavePassword] = useState(false)
-  const [draggingChoiceId, setDraggingChoiceId] = useState(null)
-
-  const rowRefs = useRef({})
 
   useEffect(() => {
     if (!isNew) {
@@ -111,42 +108,9 @@ export default function Edit() {
     )
   }
 
-  function handleChoiceDragStart(choiceId) {
-    setDraggingChoiceId(choiceId)
+  function moveChoiceRow(index, offset) {
+    setChoices((prev) => moveChoice(prev, index, offset))
   }
-
-  useEffect(() => {
-    if (!draggingChoiceId) return
-
-    function handlePointerMove(e) {
-      const entry = Object.entries(rowRefs.current).find(([, el]) => {
-        if (!el) return false
-        const rect = el.getBoundingClientRect()
-        return e.clientY >= rect.top && e.clientY <= rect.bottom
-      })
-      if (!entry) return
-      const overId = entry[0]
-      if (overId === draggingChoiceId) return
-
-      setChoices((prev) => {
-        const fromIndex = prev.findIndex((c) => c.id === draggingChoiceId)
-        const toIndex = prev.findIndex((c) => c.id === overId)
-        if (fromIndex === -1 || toIndex === -1) return prev
-        return moveChoice(prev, fromIndex, toIndex - fromIndex)
-      })
-    }
-
-    function handlePointerUp() {
-      setDraggingChoiceId(null)
-    }
-
-    window.addEventListener('pointermove', handlePointerMove)
-    window.addEventListener('pointerup', handlePointerUp)
-    return () => {
-      window.removeEventListener('pointermove', handlePointerMove)
-      window.removeEventListener('pointerup', handlePointerUp)
-    }
-  }, [draggingChoiceId])
 
   function addChoiceRow() {
     setChoices((prev) => [...prev, emptyChoice()])
@@ -272,26 +236,30 @@ export default function Edit() {
 
         <h2 className="mt-10 font-display text-2xl font-semibold text-ink">ตัวเลือก</h2>
         <div className="mt-4 space-y-4">
-          {choices.map((c) => (
-            <div
-              key={c.id}
-              ref={(el) => {
-                rowRefs.current[c.id] = el
-              }}
-              className={`rounded-card border border-line bg-white p-5 shadow-card transition ${
-                draggingChoiceId === c.id ? 'opacity-50' : ''
-              }`}
-            >
+          {choices.map((c, idx) => (
+            <div key={c.id} className="rounded-card border border-line bg-white p-5 shadow-card">
               <div className="flex items-start gap-3">
-                <button
-                  type="button"
-                  onPointerDown={() => handleChoiceDragStart(c.id)}
-                  aria-label="ลากเพื่อเรียงลำดับ"
-                  className="mt-1 flex h-8 w-6 flex-shrink-0 items-center justify-center rounded text-ink/30 hover:bg-black/5 hover:text-plum-600"
-                  style={{ touchAction: 'none', cursor: draggingChoiceId === c.id ? 'grabbing' : 'grab' }}
-                >
-                  ⠿
-                </button>
+                <div className="mt-1 flex flex-col items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => moveChoiceRow(idx, -1)}
+                    disabled={idx === 0}
+                    aria-label="ย้ายขึ้น"
+                    className="flex h-7 w-7 items-center justify-center rounded-lg text-ink/50 hover:bg-black/5 hover:text-plum-600 disabled:opacity-25 disabled:hover:bg-transparent"
+                  >
+                    ▲
+                  </button>
+                  <span className="font-mono text-xs text-ink/30">{idx + 1}</span>
+                  <button
+                    type="button"
+                    onClick={() => moveChoiceRow(idx, 1)}
+                    disabled={idx === choices.length - 1}
+                    aria-label="ย้ายลง"
+                    className="flex h-7 w-7 items-center justify-center rounded-lg text-ink/50 hover:bg-black/5 hover:text-plum-600 disabled:opacity-25 disabled:hover:bg-transparent"
+                  >
+                    ▼
+                  </button>
+                </div>
                 <div className="flex-1 space-y-4">
                   <div className="flex gap-3" >
                     <EmojiPicker

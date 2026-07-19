@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getProgrammes, updateProgramme, deleteProgramme } from '../utils/firestore'
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal'
@@ -23,9 +23,6 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [search, setSearch] = useState('')
-  const [draggingId, setDraggingId] = useState(null)
-
-  const rowRefs = useRef({})
 
   useEffect(() => {
     load()
@@ -49,63 +46,31 @@ export default function Dashboard() {
     })
   }
 
-  function persistOrder(list) {
-    // shuffleOnLoad has to be passed through explicitly — updateProgramme
-    // always re-writes it based on what it's given, so leaving it out
-    // would silently turn it off for every programme touched here.
-    list.forEach((p, i) => {
-      updateProgramme(p.id, { order: i, shuffleOnLoad: p.shuffleOnLoad }).catch((e) =>
-        console.error('เลื่อนลำดับไม่สำเร็จ', p.id, e),
-      )
+  function moveProgrammeRow(id, offset) {
+    setProgrammes((prev) => {
+      const sorted = sortProgrammes(prev)
+      const index = sorted.findIndex((p) => p.id === id)
+      const targetIndex = index + offset
+      if (targetIndex < 0 || targetIndex >= sorted.length) return prev
+
+      const next = [...sorted]
+      const [moved] = next.splice(index, 1)
+      next.splice(targetIndex, 0, moved)
+
+      const withOrder = next.map((p, i) => ({ ...p, order: i }))
+
+      // Persist every item's new position. shuffleOnLoad has to be passed
+      // through explicitly — updateProgramme always re-writes it based on
+      // what it's given, so leaving it out would silently turn it off.
+      withOrder.forEach((p) => {
+        updateProgramme(p.id, { order: p.order, shuffleOnLoad: p.shuffleOnLoad }).catch((e) =>
+          console.error('เลื่อนลำดับไม่สำเร็จ', p.id, e),
+        )
+      })
+
+      return withOrder
     })
   }
-
-  function handleDragStart(id) {
-    if (search.trim()) return // reordering while filtered isn't well-defined
-    setDraggingId(id)
-  }
-
-  useEffect(() => {
-    if (!draggingId) return
-
-    function handlePointerMove(e) {
-      const entry = Object.entries(rowRefs.current).find(([, el]) => {
-        if (!el) return false
-        const rect = el.getBoundingClientRect()
-        return e.clientY >= rect.top && e.clientY <= rect.bottom
-      })
-      if (!entry) return
-      const overId = entry[0]
-      if (overId === draggingId) return
-
-      setProgrammes((prev) => {
-        const sorted = sortProgrammes(prev)
-        const fromIndex = sorted.findIndex((p) => p.id === draggingId)
-        const toIndex = sorted.findIndex((p) => p.id === overId)
-        if (fromIndex === -1 || toIndex === -1) return prev
-        const next = [...sorted]
-        const [moved] = next.splice(fromIndex, 1)
-        next.splice(toIndex, 0, moved)
-        return next.map((p, i) => ({ ...p, order: i }))
-      })
-    }
-
-    function handlePointerUp() {
-      setDraggingId(null)
-      setProgrammes((prev) => {
-        const sorted = sortProgrammes(prev)
-        persistOrder(sorted)
-        return sorted
-      })
-    }
-
-    window.addEventListener('pointermove', handlePointerMove)
-    window.addEventListener('pointerup', handlePointerUp)
-    return () => {
-      window.removeEventListener('pointermove', handlePointerMove)
-      window.removeEventListener('pointerup', handlePointerUp)
-    }
-  }, [draggingId])
 
   const sortedProgrammes = sortProgrammes(programmes)
   const filteredProgrammes = useMemo(() => {
@@ -158,45 +123,52 @@ export default function Dashboard() {
             </div>
           )}
 
-          {filteredProgrammes.map((p) => (
-            <div
-              key={p.id}
-              ref={(el) => {
-                rowRefs.current[p.id] = el
-              }}
-              className={`group flex items-center gap-3 rounded-card border border-line bg-white px-4 py-4 shadow-card transition ${
-                draggingId === p.id ? 'opacity-50' : ''
-              }`}
-            >
-              <button
-                type="button"
-                onPointerDown={() => handleDragStart(p.id)}
-                disabled={Boolean(search.trim())}
-                aria-label="ลากเพื่อเรียงลำดับ"
-                title={search.trim() ? 'ล้างช่องค้นหาก่อนเพื่อเรียงลำดับ' : 'ลากเพื่อเรียงลำดับ'}
-                className="flex h-8 w-6 flex-shrink-0 items-center justify-center rounded text-ink/30 hover:bg-black/5 hover:text-plum-600 disabled:cursor-not-allowed disabled:opacity-20 disabled:hover:bg-transparent"
-                style={{ touchAction: 'none', cursor: draggingId === p.id ? 'grabbing' : 'grab' }}
+          {filteredProgrammes.map((p) => {
+            const fullIndex = sortedProgrammes.findIndex((item) => item.id === p.id)
+            return (
+              <div
+                key={p.id}
+                className="group flex items-center gap-3 rounded-card border border-line bg-white px-4 py-4 shadow-card"
               >
-                ⠿
-              </button>
+                <div className="flex flex-col items-center gap-0.5">
+                  <button
+                    type="button"
+                    onClick={() => moveProgrammeRow(p.id, -1)}
+                    disabled={fullIndex === 0}
+                    aria-label="เลื่อนขึ้น"
+                    className="flex h-6 w-6 items-center justify-center rounded text-xs text-ink/40 hover:bg-black/5 hover:text-plum-600 disabled:opacity-20 disabled:hover:bg-transparent"
+                  >
+                    ▲
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => moveProgrammeRow(p.id, 1)}
+                    disabled={fullIndex === sortedProgrammes.length - 1}
+                    aria-label="เลื่อนลง"
+                    className="flex h-6 w-6 items-center justify-center rounded text-xs text-ink/40 hover:bg-black/5 hover:text-plum-600 disabled:opacity-20 disabled:hover:bg-transparent"
+                  >
+                    ▼
+                  </button>
+                </div>
 
-              <button
-                onClick={() => navigate(`/vote/${p.id}`)}
-                className="flex-1 text-left"
-              >
-                <p className="font-display text-lg font-semibold text-ink">{p.name}</p>
-              </button>
+                <button
+                  onClick={() => navigate(`/vote/${p.id}`)}
+                  className="flex-1 text-left"
+                >
+                  <p className="font-display text-lg font-semibold text-ink">{p.name}</p>
+                </button>
 
-              <div className="flex items-center gap-1">
-                <IconButton label="แก้ไข" onClick={() => navigate(`/edit/${p.id}`)}>
-                  ✏️
-                </IconButton>
-                <IconButton label="ลบ" onClick={() => setDeleteTarget(p)} danger>
-                  🗑️
-                </IconButton>
+                <div className="flex items-center gap-1">
+                  <IconButton label="แก้ไข" onClick={() => navigate(`/edit/${p.id}`)}>
+                    ✏️
+                  </IconButton>
+                  <IconButton label="ลบ" onClick={() => setDeleteTarget(p)} danger>
+                    🗑️
+                  </IconButton>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
 
