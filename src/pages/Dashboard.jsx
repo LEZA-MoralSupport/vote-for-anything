@@ -187,14 +187,14 @@ export default function Dashboard() {
                 <p className="font-display text-lg font-semibold text-ink">{p.name}</p>
               </button>
 
-              {/* <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1">
                 <IconButton label="แก้ไข" onClick={() => navigate(`/edit/${p.id}`)}>
                   ✏️
                 </IconButton>
-                <IconButton label="ลบ" onClick={() => setDeleteTarget(p)} danger>
+                {/* <IconButton label="ลบ" onClick={() => setDeleteTarget(p)} danger>
                   🗑️
-                </IconButton>
-              </div> */}
+                </IconButton> */}
+              </div>
             </div>
           ))}
         </div>
