@@ -157,7 +157,7 @@ export default function Vote() {
 
                     <p
                       className={`overflow-hidden text-sm text-ink/60 ${
-                        choice.description?.trim() ? 'max-h-[5.25rem]' : 'min-h-[1.15rem]'
+                        choice.description?.trim() ? 'max-h-[5.25rem]' : 'min-h-[0rem]'
                         }`}
                         >
                       {choice.description}
