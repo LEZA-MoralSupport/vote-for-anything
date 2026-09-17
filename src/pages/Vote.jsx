@@ -90,7 +90,7 @@ export default function Vote() {
 
   return (
     <div className="min-h-screen paper-texture">
-      <div className="mx-auto max-w-5xl px-6 py-10">
+      <div className="mx-auto max-w-[90rem] px-6 py-10">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <button
             onClick={() => navigate('/')}
@@ -111,7 +111,7 @@ export default function Vote() {
           <h1 className="mt-1 font-display text-3xl font-semibold text-ink">{programme.name}</h1>
         </div>
 
-        <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 items-stretch">
+        <div className="mt-10 flex flex-wrap justify-center gap-4">
           {choices.map((choice) => {
             const hasImage = Boolean(choice.imageUrl)
             const hasIcon = Boolean(choice.icon)
@@ -122,7 +122,7 @@ export default function Vote() {
                 key={choice.id}
                 onClick={() => setConfirmChoice(choice)}
                 disabled={Boolean(votingId)}
-                className="group relative flex h-full flex-col overflow-hidden rounded-card border border-line bg-white p-4 text-left shadow-card transition hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-80"
+                className="group relative flex h-full w-full min-w-0 max-w-full flex-col overflow-hidden rounded-card border border-line bg-white p-4 text-left shadow-card transition hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-80 md:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)]"
                 style={{
                   borderTopWidth: '4px',
                   borderTopColor: choice.color || '#8C2E52',
@@ -131,14 +131,14 @@ export default function Vote() {
                 {hasNothing ? (
                   <div className="flex flex-1 flex-col items-center justify-center text-center">
                     <p className="font-display text-lg font-semibold text-ink">{choice.name}</p>
-                    {choice.description && (
+                  {choice.description && (
                       <p className="mt-1 text-sm text-ink/60">{choice.description}</p>
-                    )}
-                  </div>
+                  )}
+                </div>
                 ) : (
                   <>
                     <div className="mb-3 flex items-center">
-                      <p className="font-display text-lg font-semibold text-ink">{choice.name}</p>
+                      <p className="w-full min-w-0 truncate font-display text-lg font-semibold text-ink">{choice.name}</p>
                     </div>
 
                     <div className={`mb-3 flex flex-1 items-stretch justify-center overflow-hidden rounded-xl border ${hasImage ? 'border-line' : 'border-transparent'}`}>
@@ -158,8 +158,8 @@ export default function Vote() {
                     <p
                       className={`overflow-hidden text-sm text-ink/60 ${
                         choice.description?.trim() ? 'max-h-[5.25rem]' : 'min-h-[1.15rem]'
-                      }`}
-                    >
+                        }`}
+                        >
                       {choice.description}
                     </p>
                   </>
